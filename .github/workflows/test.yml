@@ -1,0 +1,78 @@
+name: Unit Test
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 10 ]
+
+    # service container to run with container job
+    services:
+      # label to access the service container
+      postgres:
+        # docker hub image
+        image: postgres
+        # provide password for posgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+    # downloads a copy of the code from the repository before running CI
+    - name: Chekout repository code
+      uses: actions/checkout@v2
+    
+    - name: Node ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+      
+      # copy in your env file
+    - name: Copy test env 
+      run: 'echo -e "${{secrets.DEV_ENV}}" > .env'
+
+    - name: Config NPM
+      run: "npm config set registry http://registry.npmjs.org/"
+    
+    - name: Install NPM Libraries
+      run: npm install
+
+    - name: NPM Libraries fix vulnerabilities
+      run: npm audit fix
+
+    - name: Create a symlink for the scripts
+      run: npm link
+
+    - name: Create private and public keys
+      run: xman-generatekeys
+
+    - name: Create database
+      run: xman-createdb
+
+    - name: Create GMAIL Credentials
+      run: "echo -e '${{secrets.TEST_GMAIL_CREDENTIALS}}' > credentials.json"
+
+    - name: Create GMAIL Token
+      run: "echo -e '${{secrets.TEST_GMAIL_TOKEN}}' > token.json"
+    
+    - name: Synchronize database
+      run: xman-syncdb
+
+    - name: Test the application
+      run: npm test
+    
+    

@@ -1,0 +1,59 @@
+{
+  "name": "xman-service-auth",
+  "version": "1.0.0",
+  "description": "xman Service Auth",
+  "main": "server.js",
+  "dependencies": {
+    "@sendgrid/mail": "^7.4.0",
+    "axios": "^0.20.0",
+    "bcrypt": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "google-auth-library": "^6.0.6",
+    "googleapis": "^64.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "libphonenumber-js": "^1.7.57",
+    "password-validator": "^5.1.0",
+    "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "swagger-ui-express": "^4.1.4",
+    "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "jest": "^26.4.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.4",
+    "pgtools": "^0.1.1",
+    "prompt-sync": "^4.2.0",
+    "supertest": "^4.0.2"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "test-interactive": "jest --watchAll --runInBand --detectOpenHandles",
+    "delete-token": "node scripts/tokenExpirer.js",
+    "email-wa-migrate": "node scripts/migrateTeamEmailAndWaToTeamAdmin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xman/xman-service-auth.git"
+  },
+  "author": "Jan Lynnel Balitaan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xman/xman-service-auth/issues"
+  },
+  "homepage": "https://github.com/xman/xman-service-auth#readme",
+  "bin": {
+    "xman-createdb": "scripts/createdb.js",
+    "xman-syncdb": "scripts/syncdb.js",
+    "xman-addadmin": "scripts/addadmin.js",
+    "xman-generatekeys": "scripts/createKeyPair.js",
+    "xman-gmailtokengenerator": "scripts/gmailtokengenerator.js",
+    "xman-useraccessmigrator": "scripts/migrateUserRoleToAccess.js",
+    "xman-teamaccessmigrator": "scripts/migrateTeamRoleToAccess.js"
+  }
+}

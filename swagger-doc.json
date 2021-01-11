@@ -1,0 +1,2344 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "xman OAuth 2.0 Service",
+    "description": "<h1>Introduction</h1> <p>\n  Welcome to <b>xman OAuth 2.0 Service</b>.\n</p> <h2>Scope</h2> <p>\n  This document aims to describe and provide guidelines in using the <b>application programming interface</b> (API) of the xman Oauth 2.0 Service.\n</p> <h3>Intended Audience</h3> <ul>\n  <li>\n    Software Developers of the <b>xman</b> organization; enabling them to use and incorporate OAuth 2.0 service into their projects.\n  </li>\n</ul> <p>\n  Request an account to xman OAuth 2.0 Service admin to use the services in this documentation.\n</p> <h1>Authentication</h1> <p>\n  xman uses OAuth 2.0 Authentication protocol to secure its APIs. This means that each API you are going to access will need you to provide a valid bearer token.\n</p> <h1>Token</h1> <p>\n  xman uses JWT, also known as JSON Web Tokens, for the tokens with Elliptic Curve Digital Signature Algorithm (ECDSA) using P-256 curve and SHA-256 hash algorithm\n</p> <h1>HTTP Codes</h1> <p>\n  The APIs use the standard HTTP response codes to indicate whether the provided request is successful or not.\n</p> <table border='1'>\n  <tr>\n    <th>Code</th>\n    <th>Status</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>200</td>\n    <td>OK</td>\n    <td>Everything worked as expected.</td>\n  </tr>\n  <tr>\n    <td>400</td>\n    <td>Bad Request</td>\n    <td>There was an encountered conflict in the required parameters.</td>\n  </tr>\n  <tr>\n    <td>401</td>\n    <td>Unauthorized</td>\n    <td>The provided token, client id, client secret, username or password is not valid.</td>\n  </tr>\n  <tr>\n    <td>403</td>\n    <td>Forbidden</td>\n    <td>Access token has incorrect scope.</td>\n  </tr>\n  <tr>\n    <td>404</td>\n    <td>Not Found</td>\n    <td>The requested url doesn't exist.</td>\n  </tr>\n  <tr>\n    <td>500</td>\n    <td>Server Error</td>\n    <td>The server encountered an unexpected error which prevented to process the request.</td>\n  </tr>\n  <tr>\n    <td>502</td>\n    <td>Bad Gateway</td>\n    <td>Unable to get valid response from the origin server</td>\n  </tr>\n</table> <br> <h1>OAuth 2 Scopes</h1> <p>\n  The APIs requires specific scope to use Access Tokens for each type of endpoint.\n</p> <table border='1'>\n  <tr>\n    <th>Scope</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>admin</td>\n    <td>Scope for admin pages</td>\n  </tr>\n  <tr>\n    <td>regular</td>\n    <td>Scope for regular pages</td>\n  </tr>\n  <tr>\n    <td>team_specific</td>\n    <td>Scope for team specific pages for team management</td>\n  </tr>\n</table> </br> <h1>xman Authentication</h1> <p>\n  Authenticates xman user account to obtain token.\n</p> <p>\n  Authentication Scheme used for the access of the API.\n</p> <table border='1'>\n  <tr>\n    <th>Type</th>\n    <th>Value</th>\n  </tr>\n  <tr>\n    <td>Security Scheme Type</td>\n    <td>OAuth2</td>\n  </tr>\n  <tr>\n    <td>OAuth2 Flow</td>\n    <td>password, client_credentials, refresh_token or authorization code</td>\n  </tr>\n  <tr>\n  <tr>\n    <td>Authorization URL</td>\n    <td>{baseurl}/oauth/authorize</td>\n  </tr>\n  <tr>\n    <td>Token URL</td>\n    <td>{baseurl}/oauth/token</td>\n  </tr>\n</table> </br> <h1>Other Values</h1> <p>\n  The APIs will return or requires some values that might be unfamiliar and the list will be given below.\n</p> <h2>User Status</h2> <p>\n  The APIs uses specific status to identify the user's status.\n</p> <table border='1'>\n  <tr>\n    <th>Status (integer)</th>\n    <th>Status (string)</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>0</td>\n    <td>inactive</td>\n    <td>The user is not active and cannot login to the system</td>\n  </tr>\n  <tr>\n    <td>1</td>\n    <td>activated</td>\n    <td>The user is activated and can login to the system</td>\n  </tr>\n  <tr>\n    <td>2</td>\n    <td>blocked</td>\n    <td>The user is blocked and cannot login to the system</td>\n  </tr>\n  <tr>\n    <td>3</td>\n    <td>deleted</td>\n    <td>The user is tagged as deleted and cannot login to the system</td>\n  </tr>\n</table> <h2>User Roles</h2> <p>\n  The APIs uses specific role to identify the user access.\n</p> <table border='1'>\n  <tr>\n    <th>Role (integer)</th>\n    <th>Role (string)</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>0</td>\n    <td>admin</td>\n    <td>The user is an admin user and can use admin user allowed pages</td>\n  </tr>\n  <tr>\n    <td>1</td>\n    <td>regular</td>\n    <td>The user is a regular user and can use regular user allowed pages</td>\n  </tr>\n</table> <h2>Token Status</h2> <p>\n  The APIs uses specific status to identify token status.\n</p> <table border='1'>\n  <tr>\n    <th>Status (integer)</th>\n    <th>Status (string)</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>0</td>\n    <td>inactive</td>\n    <td>The token is not active and is not allowed to use in refresh token flow</td>\n  </tr>\n  <tr>\n    <td>1</td>\n    <td>activated</td>\n    <td>The token is active and is allowed to use in refresh token flow</td>\n  </tr>\n  <tr>\n    <td>2</td>\n    <td>blocked</td>\n    <td>The token is blocked and is not allowed to use in refresh token flow</td>\n  </tr>\n  <tr>\n    <td>3</td>\n    <td>deleted</td>\n    <td>The token is tagged as deleted and is not allowed to use in refresh token flow</td>\n  </tr>\n</table> <h2>Team Roles</h2> <p>\n  The APIs uses specific role to identify the user access.\n</p> <table border='1'>\n  <tr>\n    <th>Team Role (integer)</th>\n    <th>Team Role (string)</th>\n    <th>Description</th>\n  </tr>\n  <tr>\n    <td>0</td>\n    <td>admin</td>\n    <td>The user is an admin of the team and can access everything all about the own team</td>\n  </tr>\n  <tr>\n    <td>1</td>\n    <td>editor</td>\n    <td>The user is an editor of the team and can access editor pages</td>\n  </tr>\n  <tr>\n    <td>2</td>\n    <td>agent</td>\n    <td>The user is an agent of the team and can access agent pages</td>\n  </tr>\n</table>\n",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api-auth.xman.tech",
+      "description": "Test Server"
+    },
+    {
+      "url": "http://localhost:3030",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://virtserver.swaggerhub.com/janjanbalitaan/xman-auth-service/1.0.0",
+      "description": "SwaggerHub API Auto Mocking"
+    }
+  ],
+  "paths": {
+    "/oauth/authorize": {
+      "post": {
+        "tags": [
+          "Request for an Authorization"
+        ],
+        "description": "<p>\n  This API generates an authorization code to exchange for an access token and uses bearer token for authentication.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostOauthAuthorize"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostOauthAuthorize"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationCodeObject"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "successful",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "tags": [
+          "Request for an access token"
+        ],
+        "description": "<p>\n  This API generates an access token to authenticate a xman user account\n</p> <p>\n  This endpoint allows requesting an access token following one of the flows below:\n</p> <ul>\n  <li>Authorization Code - Authenticate using Basic Auth to exchange code from to an access token</li>\n  <li>Client Credentials - Authenticate using Basic Auth to obtain access token</li>\n  <li>Password Credentials</li>\n  <li>Refresh Token - Authenticate using Basic Auth to exchange refresh token to new access token</li>\n</ul> <p>\n  The table for the list of authentication in each grant type\n</p> <table border='1'>\n  <tr>\n    <th>grant_type</th>\n    <th>authentication</th>\n    <th>description</th>\n  </tr>\n  <tr>\n    <td>authorization_code</td>\n    <td>Basic</td>\n    <td>Authenticate using basic auth with client id and client secret as the credentials</th>\n  </tr>\n  <tr>\n    <td>client_credentials</td>\n    <td>Basic</td>\n    <td>Authenticate using basic auth with client id and client secret as the credentials</th>\n  </tr>\n  <tr>\n    <td>password</th>\n    <td>N/A</td>\n    <td>No authentication needed</td>\n  </tr>\n  <tr>\n    <td>refresh_token</th>\n    <td>Basic</td>\n    <td>Authenticate using basic auth with client id and client secret as the credentials</th>\n  </tr>\n  <tr>\n    <td>team_token</th>\n    <td>N/A</td>\n    <td>No authentication needed</th>\n  </tr>\n  <tr>\n    <td>user_refresh_token</th>\n    <td>N/A</td>\n    <td>No authentication needed</th>\n  </tr>\n</table> <p>\n  The table for the list of parameters in each grant type\n</p> <table border='1'>\n  <tr>\n    <th></th>\n    <th>authorization_code</th>\n    <th>client_credentials</th>\n    <th>password</th>\n    <th>refresh_token</th>\n    <th>team_token</th>\n    <th>user_refresh_token</th>\n  </tr>\n  <tr>\n    <th>grant_type</th>\n    <th>yes</th>\n    <th>yes</th>\n    <th>yes</th>\n    <th>yes</th>\n    <th>yes</th>\n    <th>yes</th>\n  </tr>\n  <tr>\n    <th>client_id</th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>client_secret</th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>username</th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>password</th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>scope</th>\n    <th></th>\n    <th>yes</th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>code</th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>redirect_uri</th>\n    <th>yes</th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>refresh_token</th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th>yes</th>\n    <th>yes</th>\n  </tr>\n  <tr>\n    <th>team_id</th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n  </tr>\n  <tr>\n    <th>expiration</th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th></th>\n    <th>yes</th>\n    <th></th>\n  </tr>\n</table>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PostPasswordGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostClientCredentialsGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostRefreshTokenGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostAuthorizationCodeGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostTeamTokenGrant"
+                  }
+                ]
+              },
+              "example": {
+                "client_id": "string",
+                "client_secret": "string",
+                "username": "string",
+                "password": "string",
+                "grant_type": "password",
+                "scope": "string"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PostPasswordGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostClientCredentialsGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostRefreshTokenGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostAuthorizationCodeGrant"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PostTeamTokenGrant"
+                  }
+                ]
+              },
+              "example": {
+                "client_id": "string",
+                "client_secret": "string",
+                "username": "string",
+                "password": "string",
+                "grant_type": "password",
+                "scope": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TokenObject"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TokenWithoutRefreshTokenObject"
+                    }
+                  ]
+                },
+                "example": {
+                  "code": 200,
+                  "message": "successful",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/oauth/revoke": {
+      "post": {
+        "tags": [
+          "Request for a Refresh Token Revocation"
+        ],
+        "description": "<p>\n  This API revokes a refresh token.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostRefreshTokenRevoke"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostRefreshTokenRevoke"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "successful",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "User Login"
+        ],
+        "description": "Login API that requires username and password to obtain an access token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostLoginRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "Admin User Management"
+        ],
+        "description": "<p>\n  This API fetch a list of new user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUsersResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin User Management"
+        ],
+        "description": "<p>\n  This API creates a new user.\n</p> <p>\n  The table for required parameters in this API.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/users/{id}": {
+      "get": {
+        "tags": [
+          "Admin User Management"
+        ],
+        "description": "<p>\n  This API fetch a specific user\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin User Management"
+        ],
+        "description": "<p>\n  This API soft deletes a user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Admin User Management"
+        ],
+        "description": "<p>\n  This API updates a user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchUserRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/tokens/{id}": {
+      "get": {
+        "tags": [
+          "Admin User Token Management"
+        ],
+        "description": "<p>\n  This API fetch token of a specific user.\n</p> <p>\n  The table for required parameters in this API.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUserTokensResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin User Token Management"
+        ],
+        "description": "<p>\n  This API create a token of a specific user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": [
+                  "scope"
+                ],
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "description": "comma-separated string"
+                  },
+                  "expiration": {
+                    "type": "number",
+                    "description": "number of minutes to be added to current time | can be null"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "required": [
+                  "scope"
+                ],
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "description": "comma-separated string"
+                  },
+                  "expiration": {
+                    "type": "number",
+                    "description": "number of minutes to be added to current time | can be null"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUserTokensResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/tokens/revoke/{id}": {
+      "post": {
+        "tags": [
+          "Admin User Token Management"
+        ],
+        "description": "<p>\n  This API revoke a specific token of a specific user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRefreshTokenRevoke"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRefreshTokenRevoke"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin User Token Management"
+        ],
+        "description": "<p>\n  This API revoke token of a specific user.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the user",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/tokens/revoke": {
+      "delete": {
+        "tags": [
+          "Admin User Token Management"
+        ],
+        "description": "<p>\n  This API revoke all token of the users.\n</p>\n",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/teams": {
+      "get": {
+        "tags": [
+          "Admin Team Management"
+        ],
+        "description": "<p>\n  This API fetch a list of teams.\n</p>\n",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminTeamsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin Team Management"
+        ],
+        "description": "<p>\n  This API create a team.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTeamRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTeamRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminTeamResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/teams/{id}": {
+      "get": {
+        "tags": [
+          "Admin Team Management"
+        ],
+        "description": "<p>\n  This API fetch a specific team\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminTeamResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin Team Management"
+        ],
+        "description": "<p>\n  This API delete a team.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Admin Team Management"
+        ],
+        "description": "<p>\n  This API create a team.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchTeamRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTeamRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/teams/{id}/members": {
+      "get": {
+        "tags": [
+          "Admin Team Members Management"
+        ],
+        "description": "<p>\n  This API fetch a list of team members\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The numbers of items to return.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The number of items to skip before starting to collect the result set.",
+            "required": false,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUsersResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Admin Team Members Management"
+        ],
+        "description": "<p>\n  This API create/update a team member.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTeamMemberRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostTeamMemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Admin Team Members Management"
+        ],
+        "description": "<p>\n  This API create/update a team member.\n</p>\n",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Team id",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "User Management"
+        ],
+        "description": "<p>\n  This API fetch the user details\n</p> schema:\n  type: integer\n",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAdminUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "User Management"
+        ],
+        "description": "<p>\n  This API updates a user details.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchUserDetailRequest"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchUserDetailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/tokens/revoke": {
+      "post": {
+        "tags": [
+          "User Token Management"
+        ],
+        "description": "<p>\n  This API revokes a user refresh token.\n</p>\n",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRefreshTokenRevoke"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/PostUserRefreshTokenRevoke"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "successful",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/tokens/revoke/all": {
+      "delete": {
+        "tags": [
+          "User Token Management"
+        ],
+        "description": "<p>\n  This API revokes all user refresh token.\n</p>\n",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenericResponse"
+                },
+                "example": {
+                  "code": 200,
+                  "message": "successful",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/public/public.pem": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "description": "<p>\n  Download public key\n</p> schema:\n  type: integer\n",
+        "responses": {
+          "200": {
+            "description": "success",
+            "content": {
+              "application/x-x509-ca-cert": {
+                "schema": {
+                  "type": "string",
+                  "format": "base64"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GenericResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `error` - erroroneous request\n  `success` - successful request\nenum: [error, success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "code:\n  200 - successful\n  4xx - erroneous\n  5xx - server failure\nenum: [200, 4xx, 5xx]\n"
+          }
+        },
+        "description": "Generic Response Body"
+      },
+      "PostOauthAuthorize": {
+        "required": [
+          "client_id",
+          "redirectUri",
+          "response_type",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "uid with uuidv4 format | The id in the user table",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string",
+            "description": "scope"
+          },
+          "redirectUri": {
+            "type": "string",
+            "description": "redirect uri that is required in authorization code grant",
+            "format": "url"
+          },
+          "response_type": {
+            "type": "string",
+            "description": "response_type:\n  code - for authorization code\nenum: [code]  \n"
+          }
+        },
+        "description": "Post Oauth Authorize Request Body"
+      },
+      "PostRefreshTokenGrant": {
+        "required": [
+          "grant_type",
+          "refresh_token"
+        ],
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "description": "a refresh token obtained from a successful sign in using password, authorization code and username password login"
+          },
+          "grant_type": {
+            "type": "string",
+            "description": "grant_types:\n  refresh_token - refresh token grant\nenum: [refresh_token]\n"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Refresh Token Grant"
+      },
+      "PostPasswordGrant": {
+        "required": [
+          "client_id",
+          "client_secret",
+          "grant_type",
+          "password",
+          "scope",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "description": "uid with uuidv4 format | The id in the user table",
+            "format": "uuid"
+          },
+          "client_secret": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password",
+            "format": "password"
+          },
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password",
+            "format": "password"
+          },
+          "scope": {
+            "type": "string",
+            "description": "scope:\n  requested scope to access </br>\n  <table border='1'>\n    <tr>\n      <th>Scope</th>\n      <th>Description</th>\n    </tr>\n    <tr>\n      <td>admin</td>\n      <td>have an access to admin pages</td>\n    </tr>\n    <tr>\n      <td>regular</td>\n      <td>have an access regular user pages</td>\n    </tr>\n  </table>\n"
+          },
+          "grant_type": {
+            "type": "string",
+            "description": "grant_types:\n  password - password grant\nenum: [password]\n"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Password Grant"
+      },
+      "PostClientCredentialsGrant": {
+        "required": [
+          "grant_type",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "description": "scope:\n  requested scope to access </br>\n  <table border='1'>\n    <tr>\n      <th>Scope</th>\n      <th>Description</th>\n    </tr>\n    <tr>\n      <td>admin</td>\n      <td>have an access to admin pages</td>\n    </tr>\n    <tr>\n      <td>regular</td>\n      <td>have an access regular user pages</td>\n    </tr>\n  </table>\n"
+          },
+          "grant_type": {
+            "type": "string",
+            "description": "grant_types:\n  client_credentials - client credential grant\nenum: [client_credentials]\n"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Client Credentials Grant"
+      },
+      "PostAuthorizationCodeGrant": {
+        "required": [
+          "code",
+          "grant_type",
+          "redirect_uri"
+        ],
+        "type": "object",
+        "properties": {
+          "redirect_uri": {
+            "type": "string",
+            "description": "redirect uri",
+            "format": "url"
+          },
+          "code": {
+            "type": "string",
+            "description": "a authorization code obtained in /oauth/authorize",
+            "format": "jwt"
+          },
+          "grant_type": {
+            "type": "string",
+            "description": "grant_types:\n  authorization_code - authorization code grant\nenum: [authorization_code]\n"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Authorization Code Grant"
+      },
+      "PostTeamTokenGrant": {
+        "required": [
+          "expiration",
+          "grant_type",
+          "refresh_token",
+          "team_id"
+        ],
+        "type": "object",
+        "properties": {
+          "team_id": {
+            "type": "string",
+            "description": "target team id to generate access token",
+            "format": "uuid"
+          },
+          "expiration": {
+            "type": "number",
+            "description": "number of minutes to be added to current time"
+          },
+          "refresh_token": {
+            "type": "string",
+            "description": "an admin refresh token obtained from a successful sign in using password, authorization code and username password login and is only required in refresh token grant"
+          },
+          "grant_type": {
+            "type": "string",
+            "description": "grant_types:\n  team_token - team token grant\nenum: [team_token]\n"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Team Token Grant"
+      },
+      "PostRefreshTokenRevoke": {
+        "required": [
+          "client_id",
+          "client_secret",
+          "refresh_token"
+        ],
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "description": "a refresh token obtained from a successful sign in using password, authorization code and username password login",
+            "format": "uuid"
+          },
+          "client_id": {
+            "type": "string",
+            "description": "uid with uuidv4 format | The id in the user table",
+            "format": "uuid"
+          },
+          "client_secret": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password",
+            "format": "password"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Refresh Token Revocation"
+      },
+      "PostLoginRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username",
+            "example": "juandelacruz"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password hash using salt rounds of 10 + bcrypt hash (minimum of 8 characters and maximum of 64 characters long with atleast 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no spaces)",
+            "format": "password",
+            "example": "P@ssw0rd"
+          }
+        },
+        "description": "Post Login Request Body"
+      },
+      "PostLoginResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/TokenObject"
+          }
+        },
+        "description": "Post Login Response Body"
+      },
+      "TokenObject": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "A JWT access token"
+          },
+          "accessTokenExpiration": {
+            "type": "number",
+            "format": "long"
+          },
+          "refreshToken": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated token and not present in client_credentials grant",
+            "format": "uuid"
+          },
+          "refreshTokenExpiration": {
+            "type": "number",
+            "description": "long milliseconds | not present in client_credentials grant",
+            "format": "long"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "tokenTypes:\n  `Bearer` - bearer token\nenum: [Bearer]\n"
+          }
+        },
+        "description": "A meta object for tokens"
+      },
+      "TokenWithoutRefreshTokenObject": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "A JWT access token"
+          },
+          "accessTokenExpiration": {
+            "type": "number",
+            "format": "long"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "tokenTypes:\n  `Bearer` - bearer token\nenum: [Bearer]\n"
+          }
+        },
+        "description": "A meta object for tokens"
+      },
+      "AuthorizationCodeObject": {
+        "type": "object",
+        "properties": {
+          "authorizationCode": {
+            "type": "string",
+            "description": "A JWT access token"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "redirectUri": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "Url to obtain access token in exchange of authorization code",
+            "format": "uuid"
+          }
+        },
+        "description": "A meta object for authorization code"
+      },
+      "PostUserRequest": {
+        "required": [
+          "password",
+          "role",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password hash using salt rounds of 10 + bcrypt hash (minimum of 8 characters and maximum of 64 characters long with atleast 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no spaces)",
+            "format": "password"
+          },
+          "status": {
+            "type": "string",
+            "description": "status of the user"
+          },
+          "role": {
+            "type": "string",
+            "description": "role of the user"
+          },
+          "team_role": {
+            "type": "string",
+            "description": "role of the user in the team | optional if the teamId is null and required otherwise"
+          },
+          "teamId": {
+            "type": "integer",
+            "description": "team id where the user was added | optional"
+          }
+        },
+        "description": "Users Table"
+      },
+      "PatchUserRequest": {
+        "required": [
+          "role",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password hash using salt rounds of 10 + bcrypt hash (minimum of 8 characters and maximum of 64 characters long with atleast 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no spaces) | optional field",
+            "format": "password"
+          },
+          "status": {
+            "type": "string",
+            "description": "status of the user | optional field"
+          },
+          "role": {
+            "type": "string",
+            "description": "role of the user"
+          },
+          "team_role": {
+            "type": "string",
+            "description": "role of the user in the team | optional if the teamId is null and required otherwise"
+          },
+          "teamId": {
+            "type": "integer",
+            "description": "team id where the user was added | optional"
+          }
+        },
+        "description": "Users Table"
+      },
+      "PatchUserDetailRequest": {
+        "required": [
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password hash using salt rounds of 10 + bcrypt hash (minimum of 8 characters and maximum of 64 characters long with atleast 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no spaces)",
+            "format": "password"
+          }
+        },
+        "description": "Users Table"
+      },
+      "PostUserRefreshTokenRevoke": {
+        "required": [
+          "refresh_token"
+        ],
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "description": "a refresh token obtained from a successful sign in using password, authorization code and username password login",
+            "format": "uuid"
+          }
+        },
+        "description": "Post Oauth Token Request Body for Refresh Token Revocation"
+      },
+      "PostUserResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n",
+            "example": "success"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request",
+            "example": "success"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request",
+            "example": 200
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UserWithoutPassword"
+          }
+        },
+        "description": "Post Login Response Body"
+      },
+      "GetAdminUserResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/UserWithTeamWithoutPassword"
+          }
+        },
+        "description": "Post Login Response Body"
+      },
+      "GetAdminUsersResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserWithTeamWithoutPassword"
+            }
+          }
+        },
+        "description": "Post Login Response Body"
+      },
+      "UserWithoutPassword": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated uid with uuidv4 format and can be used as client id and served as the primary key",
+            "format": "uuid"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the user",
+            "format": "date-time"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of user update",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the user",
+            "format": "date-time"
+          },
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "status": {
+            "type": "integer",
+            "description": "status of the user"
+          },
+          "role": {
+            "type": "integer",
+            "description": "role of the user"
+          },
+          "team_role": {
+            "type": "integer",
+            "description": "role of the user in the team"
+          },
+          "teamId": {
+            "type": "string",
+            "description": "team id where the user was added",
+            "format": "uuid"
+          }
+        },
+        "description": "Users Table"
+      },
+      "UserWithTeamWithoutPassword": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated uid with uuidv4 format and can be used as client id and served as the primary key",
+            "format": "uuid"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the user",
+            "format": "date-time"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of user update",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the user",
+            "format": "date-time"
+          },
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "user username"
+          },
+          "status": {
+            "type": "integer",
+            "description": "status of the user"
+          },
+          "role": {
+            "type": "integer",
+            "description": "role of the user"
+          },
+          "team_role": {
+            "type": "integer",
+            "description": "role of the user in the team"
+          },
+          "teamId": {
+            "type": "string",
+            "description": "team id where the user was added",
+            "format": "uuid"
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
+          }
+        },
+        "description": "Users Table"
+      },
+      "GetAdminUserTokensResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RefreshTokenObject"
+            }
+          }
+        },
+        "description": "Get Admin User Token Response Body"
+      },
+      "RefreshTokenObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "system generated token identifier",
+            "format": "uuid"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the token",
+            "format": "date-time"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of token update",
+            "format": "date-time"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the token",
+            "format": "date-time"
+          },
+          "expiration": {
+            "type": "string",
+            "description": "deleted date of the token",
+            "format": "date-time"
+          },
+          "token": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated token",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "array",
+            "description": "an array of allowed scope for the token",
+            "items": {
+              "type": "string"
+            }
+          },
+          "userId": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "a foreign key from the user table",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "integer"
+          }
+        },
+        "description": "Refresh Token Object"
+      },
+      "GetAdminTeamsResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Team"
+            }
+          }
+        },
+        "description": "Get Team Response Body"
+      },
+      "GetAdminTeamResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status:\n  `success` - successful request\nenum: [success]\n"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message regarding the status of the request"
+          },
+          "code": {
+            "type": "integer",
+            "description": "response code for regarding the status of the request"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Team"
+          }
+        },
+        "description": "Get Team Response Body"
+      },
+      "PostTeamRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the team"
+          },
+          "email": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "email address of the team",
+            "format": "email"
+          },
+          "number": {
+            "maxLength": 32,
+            "type": "string",
+            "description": "contact number of the team"
+          },
+          "notify_email": {
+            "type": "boolean",
+            "description": "enabled notification via email"
+          },
+          "notify_wa": {
+            "type": "boolean",
+            "description": "enabled notification via whatsapp"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "description": "Teams Table"
+      },
+      "PatchTeamRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the team"
+          },
+          "email": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "email address of the team",
+            "format": "email"
+          },
+          "number": {
+            "maxLength": 32,
+            "type": "string",
+            "description": "contact number of the team"
+          },
+          "notify_email": {
+            "type": "boolean",
+            "description": "enabled notification via email"
+          },
+          "notify_wa": {
+            "type": "boolean",
+            "description": "enabled notification via whatsapp"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "description": "Teams Table"
+      },
+      "PostTeamMemberRequest": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "a foreign key from the user table",
+            "format": "uuid"
+          },
+          "team_role": {
+            "type": "string"
+          }
+        },
+        "description": "Teams Table"
+      },
+      "Status": {
+        "type": "integer",
+        "description": "Status:\n  `0` - deactivated and default\n  `1` - activated\n  `2` - marked as blocked\n  `3` - marked as deleted\n",
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "Role": {
+        "type": "integer",
+        "description": "Status:\n  `0` - administrator\n  `1` - regular user\n",
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "TeamRole": {
+        "type": "integer",
+        "description": "role:\n  `0` - admin\n  `1` - editor\n  `2` - agent\n",
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated uid with uuidv4 format and can be used as client id and served as the primary key",
+            "format": "uuid",
+            "example": "d73359bd-e3ed-491e-950d-1e40460dd105"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the user",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of user update",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the user",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "username": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "uid with uuidv4 format and can be used as client id",
+            "example": "juandelacruz"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 8,
+            "type": "string",
+            "description": "user password hash using salt rounds of 10 + bcrypt hash (minimum of 8 characters and maximum of 64 characters long with atleast 1 uppercase, 1 lowercase, 1 digit, 1 symbol and no spaces)",
+            "format": "password",
+            "example": "P@ssw0rd"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "teamId": {
+            "type": "string",
+            "description": "uid and a foreign key from teams table",
+            "format": "uuid"
+          },
+          "team_role": {
+            "$ref": "#/components/schemas/TeamRole"
+          }
+        },
+        "description": "Users Table"
+      },
+      "RefreshToken": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "system generated token identifier",
+            "format": "uuid",
+            "example": "d73359bd-e3ed-491e-950d-1e40460dd105"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the token",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of token update",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the token",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "expiration": {
+            "type": "string",
+            "description": "deleted date of the token",
+            "format": "date-time"
+          },
+          "token": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "system generated token",
+            "format": "uuid",
+            "example": "d73359bd-e3ed-491e-950d-1e40460dd105"
+          },
+          "scope": {
+            "type": "string",
+            "description": "an array of allowed scope for the token",
+            "example": "admin"
+          },
+          "user_id": {
+            "maxLength": 64,
+            "minLength": 32,
+            "type": "string",
+            "description": "a foreign key from the user table",
+            "format": "uuid",
+            "example": "d73359bd-e3ed-491e-950d-1e40460dd105"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "description": "Refresh Tokens Table"
+      },
+      "Team": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "system generated token identifier",
+            "format": "uuid",
+            "example": "d73359bd-e3ed-491e-950d-1e40460dd105"
+          },
+          "created": {
+            "type": "string",
+            "description": "date of creation of the team",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "modified": {
+            "type": "string",
+            "description": "last date of team update",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "deleted": {
+            "type": "string",
+            "description": "deleted date of the team",
+            "format": "date-time",
+            "example": "2020-09-07T09:22:21.185Z"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the team"
+          },
+          "email_address": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string",
+            "description": "email address of the team",
+            "format": "email"
+          },
+          "contact_number": {
+            "maxLength": 32,
+            "type": "string",
+            "description": "contact number of the team"
+          },
+          "is_notify_email": {
+            "type": "boolean",
+            "description": "enabled notification via email"
+          },
+          "is_notify_wa": {
+            "type": "boolean",
+            "description": "enabled notification via whatsapp"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "description": "Teams Table"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}

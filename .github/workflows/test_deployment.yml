@@ -1,0 +1,99 @@
+name: Test Deployment
+
+on:
+  push:
+    branches:
+    - 'test/*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 10 ] # what you're using for your app, can setup Docker too if need be
+
+    steps:
+    # downloads a copy of the code from the repository before running CI
+    - name: Chekout repository code
+      uses: actions/checkout@v2
+    
+    - name: Node ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Copy production env # copy in your env file
+      run: 'echo -e "${{secrets.TEST_ENV}}" > .env'
+
+    - name: Config NPM
+      run: "npm config set registry http://registry.npmjs.org/"
+    
+    - name: Installing NPM
+      run: npm install
+
+    - name: NPM Libraries fix vulnerabilities
+      run: npm audit fix
+
+    - name: Create a symlink for the scripts
+      run: npm link
+
+    - name: Create folder for private and public keys
+      run: mkdir dsa
+
+    - name: Create private key
+      run: echo -e '${{secrets.TEST_PRIVATE_KEY}}' > dsa/private.pem
+
+    - name: Create public key
+      run: echo -e '${{secrets.TEST_PUBLIC_KEY}}' > dsa/public.pem
+
+    - name: Create public key to public directory
+      run: echo -e '${{secrets.TEST_PUBLIC_KEY}}' > public/public.pem
+
+    - name: Create GMAIL Credentials
+      run: echo -e '${{secrets.TEST_GMAIL_CREDENTIALS}}' > credentials.json
+
+    - name: Create GMAIL Token
+      run: echo -e '${{secrets.TEST_GMAIL_TOKEN}}' > token.json
+
+    - name: Synchronize database
+      run: xman-syncdb
+
+    - name: Create Admin User
+      run: xman-addadmin
+    
+    - name: Delete Expired Tokens
+      run: npm run delete-token
+
+    # - name: Test the application
+    #   run: npm test
+      
+    - name: Generate deployment package
+      run: zip -r deploy.zip ./
+      
+    - name: Get timestamp
+      uses: gerred/actions/current-time@master
+      id: current-time
+
+    - name: Run string replace
+      uses: frabert/replace-string-action@master
+      id: format-time
+      with:
+        pattern: '[:\.]+'
+        string: "${{ steps.current-time.outputs.time }}"
+        replace-with: '-'
+        flags: 'g'
+    
+    - name: Beanstalk Deploy for xman OAuth 2.0
+      uses: runningdeveloper/beanstalk-deploy@v11
+      with:
+         aws_access_key: "${{secrets.AWS_ACCESS_KEY}}"
+         aws_secret_key: "${{secrets.AWS_SECRET_KEY}}"
+         application_name: "Services"
+         environment_name: "service-oauth"
+         region: "ap-east-1"
+         version_label: "${{ github.event.repository.name }}-${{ steps.format-time.outputs.replaced }}" # ensures unique version
+         region_specific_s3: "true"
+         use_existing_version_if_available: "true"
+         deployment_package: "deploy.zip"
+
+    
